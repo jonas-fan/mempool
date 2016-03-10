@@ -22,7 +22,7 @@ $ cd build/
 $ ./test/mempool_test
 ```
 
-Macbook Pro 13" (Intel core i5 2.6GHz) + Vitualbox + Ubuntu-15.10-x86_64 + CPU * 2 + 2G DRAM
+Macbook Pro 13" (Intel core i5 2.6GHz) + Virtualbox + Ubuntu-15.10-x86_64 + CPU * 2 + 2G DRAM
 
 Test case: (Allocate 256bytes * 4000times) * 1000times
 

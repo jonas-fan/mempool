@@ -1,0 +1,21 @@
+language: c
+
+compiler: gcc
+
+before_script:
+    - mkdir build/
+    - cd build/
+    - cmake ..
+
+script:
+    - make -j4
+    - make install
+
+after_script:
+    - ./test/mempool_test
+
+notifications:
+    email:
+        - jianfan.tw@gmail.com
+    on_success: change
+    on_failure: always

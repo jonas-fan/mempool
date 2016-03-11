@@ -8,6 +8,10 @@
  *    @author  Jian <jianfan.tw@gmail.com>
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct mempool_t mempool_t;
 
 mempool_t * mempool_create(unsigned int block_size, unsigned int min_block_count);
@@ -17,5 +21,9 @@ void * mempool_allocate(mempool_t *pool);
 void mempool_free(mempool_t *pool, void *address);
 
 unsigned int mempool_block_size(mempool_t *pool);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  /* MEMORY_POOL_H_ */

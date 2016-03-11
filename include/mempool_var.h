@@ -8,6 +8,10 @@
  *    @author  Jian <jianfan.tw@gmail.com>
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct mempool_var_t mempool_var_t;
 
 mempool_var_t * mempool_var_create(unsigned int size);
@@ -15,5 +19,9 @@ void mempool_var_destroy(mempool_var_t *pool);
 
 void * mempool_var_allocate(mempool_var_t *pool, unsigned int size);
 void mempool_var_free(mempool_var_t *pool, void *address);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  /* MEMORY_POOL_VAR_H_ */

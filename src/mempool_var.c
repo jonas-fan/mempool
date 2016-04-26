@@ -23,8 +23,8 @@ struct mempool_var_t
     unsigned int chunk_aligned_size;
     unsigned int chunk_free_size;
 
-    mempool_block_t *idle_blocks;
-    mempool_block_t *used_blocks;
+    mempool_block_t *ready_blocks;
+    mempool_block_t *using_blocks;
     mempool_block_t *blocks;
 };
 
@@ -103,9 +103,12 @@ mempool_var_t * mempool_var_create(unsigned int size)
 
     pool->chunk_size = size;
     pool->chunk_aligned_size = aligned_size;
-    pool->chunk_free_size = aligned_size;
+    pool->chunk_free_size = pool->chunk_aligned_size;
 
-    mempool_block_t *block = mempool_block_allocate(pool, pool->chunk, pool->chunk_free_size, NULL);
+    mempool_block_t *block = mempool_block_allocate(pool,
+                                                    pool->chunk,
+                                                    pool->chunk_free_size,
+                                                    NULL);
 
     if (!block) {
         free(pool->chunk);
@@ -113,7 +116,7 @@ mempool_var_t * mempool_var_create(unsigned int size)
         return NULL;
     }
 
-    pool->idle_blocks = block;
+    pool->ready_blocks = block;
 
     return pool;
 }
@@ -121,7 +124,7 @@ mempool_var_t * mempool_var_create(unsigned int size)
 void mempool_var_destroy(mempool_var_t *pool)
 {
     // TODO -- optimize there ...
-    mempool_block_t *blocks[] = {pool->blocks, pool->idle_blocks, pool->used_blocks};
+    mempool_block_t *blocks[] = {pool->blocks, pool->ready_blocks, pool->using_blocks};
     const unsigned int blocks_size = sizeof(blocks) / sizeof(*blocks);
 
     for (unsigned int index = 0; index < blocks_size; ++index) {
@@ -149,11 +152,12 @@ void * mempool_var_allocate(mempool_var_t *pool, unsigned int size)
     const unsigned int aligned_size = ALIGN(size, MEMORY_BLOCK_SIZE);
 
     if (pool->chunk_free_size < aligned_size) {
+        // The size of pool is too small
         return NULL;
     }
 
     mempool_block_t *previous = NULL;
-    mempool_block_t *block = pool->idle_blocks;
+    mempool_block_t *block = pool->ready_blocks;
 
     while (block && (block->capacity < aligned_size)) {
         previous = block;
@@ -161,6 +165,7 @@ void * mempool_var_allocate(mempool_var_t *pool, unsigned int size)
     }
 
     if (!block) {
+        // Maybe the memory fragmentation occured
         return NULL;
     }
 
@@ -181,14 +186,14 @@ void * mempool_var_allocate(mempool_var_t *pool, unsigned int size)
         previous->next = new_block;
     }
     else {
-        pool->idle_blocks = new_block;
+        pool->ready_blocks = new_block;
     }
 
     block->capacity = aligned_size;
-    block->next = pool->used_blocks;
+    block->next = pool->using_blocks;
 
-    pool->used_blocks = block;
-    pool->chunk_free_size -= aligned_size;
+    pool->using_blocks = block;
+    pool->chunk_free_size -= block->capacity;
 
     return block->address;
 }
@@ -200,7 +205,7 @@ void mempool_var_free(mempool_var_t *pool, void *address)
     }
 
     mempool_block_t *previous = NULL;
-    mempool_block_t *block = pool->used_blocks;
+    mempool_block_t *block = pool->using_blocks;
 
     while (block && (block->address != address)) {
         previous = block;
@@ -208,6 +213,7 @@ void mempool_var_free(mempool_var_t *pool, void *address)
     }
 
     if (!block) {
+        // Invalid address
         return;
     }
 
@@ -215,25 +221,27 @@ void mempool_var_free(mempool_var_t *pool, void *address)
         previous->next = block->next;
     }
     else {
-        pool->used_blocks = block->next;
+        pool->using_blocks = block->next;
     }
 
     pool->chunk_free_size += block->capacity;
 
-    insert_sort(&(pool->idle_blocks), block);
+    insert_sort(&(pool->ready_blocks), block);
 
-    block = pool->idle_blocks;
+    block = pool->ready_blocks;
 
     while (block && block->next) {
         mempool_block_t *next = block->next;
 
-        if (block->address + block->capacity == next->address) {
+        if ((block->address + block->capacity) == next->address) {
             block->capacity += next->capacity;
             block->next = next->next;
 
             mempool_block_free(pool, next);
+
+            next = block->next;
         }
 
-        block = block->next;
+        block = next;
     }
 }

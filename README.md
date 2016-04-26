@@ -1,7 +1,7 @@
 # mempool
 [![Build Status](https://travis-ci.org/yjfan/mempool.svg?branch=master)](https://travis-ci.org/yjfan/mempool)
 
-Simple memory pool implementation in C.
+Simple non thread-safe memory pool implementation in C.
 - Fixed-size memory pool
 - Variable-size memory pool
 
@@ -11,7 +11,7 @@ $ git clone https://github.com/yjfan/mempool.git
 $ cd mempool/
 $ mkdir build/
 $ cd build/
-$ cmake ..
+$ cmake .. -DCMAKE_BUILD_TYPE=<Release|Debug> -DCMAKE_INSTALL_PREFIX=<prefix>
 $ make -j4
 $ make install
 ```

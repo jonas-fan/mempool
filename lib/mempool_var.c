@@ -1,4 +1,4 @@
-#include "mempool_var.h"
+#include "mempool.h"
 
 #include <stdlib.h>
 #include <string.h>

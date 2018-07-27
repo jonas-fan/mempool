@@ -4,7 +4,6 @@
 #include <assert.h>
 
 #include "../lib/mempool.h"
-#include "../lib/mempool_var.h"
 
 #define TEST_COUNT (4 * 1000)
 #define TEST_BLOCK_SIZE 256

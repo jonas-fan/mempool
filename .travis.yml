@@ -5,14 +5,13 @@ compiler: gcc
 before_script:
     - mkdir build/
     - cd build/
-    - cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../output/
+    - cmake ..
 
 script:
     - make -j4
-    - make install
 
 after_script:
-    - ./test/mempool_test
+    - ./tests/mempool_test
 
 notifications:
     email:

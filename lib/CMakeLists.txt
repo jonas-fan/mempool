@@ -1,6 +1,5 @@
 set(HEADER
 	${CMAKE_SOURCE_DIR}/lib/mempool.h
-	${CMAKE_SOURCE_DIR}/lib/mempool_var.h
 )
 
 set(SOURCE

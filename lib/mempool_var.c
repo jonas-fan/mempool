@@ -7,46 +7,44 @@
 
 #define ALIGN(x, size) (((x) + (size) - 1) & ~((size) - 1))
 
-typedef struct mempool_block_t mempool_block_t;
-
-struct mempool_block_t
+struct mempool_block
 {
     unsigned char *address;
     unsigned int capacity;
-    mempool_block_t *next;
+    struct mempool_block *next;
 };
 
-struct mempool_var_t
+struct mempool_var
 {
     unsigned char *chunk;
     unsigned int chunk_size;
     unsigned int chunk_aligned_size;
     unsigned int chunk_free_size;
 
-    mempool_block_t *ready_blocks;
-    mempool_block_t *using_blocks;
-    mempool_block_t *blocks;
+    struct mempool_block *ready_blocks;
+    struct mempool_block *using_blocks;
+    struct mempool_block *blocks;
 };
 
-static inline mempool_block_t * mempool_block_allocate(mempool_var_t *pool,
+static inline struct mempool_block * mempool_block_allocate(struct mempool_var *pool,
                                                        unsigned char *address,
                                                        unsigned int capacity,
-                                                       mempool_block_t *next)
+                                                       struct mempool_block *next)
 {
-    mempool_block_t *block = pool->blocks;
+    struct mempool_block *block = pool->blocks;
 
     if (block) {
         pool->blocks = block->next;
     }
     else {
-        block = (mempool_block_t *)malloc(sizeof(mempool_block_t));
+        block = (struct mempool_block *)malloc(sizeof(struct mempool_block));
 
         if (!block) {
             return NULL;
         }
     }
 
-    memset(block, 0, sizeof(mempool_block_t));
+    memset(block, 0, sizeof(struct mempool_block));
 
     block->address = address;
     block->capacity = capacity;
@@ -55,17 +53,17 @@ static inline mempool_block_t * mempool_block_allocate(mempool_var_t *pool,
     return block;
 }
 
-static inline void mempool_block_free(mempool_var_t *pool, mempool_block_t *block)
+static inline void mempool_block_free(struct mempool_var *pool, struct mempool_block *block)
 {
     block->next = pool->blocks;
 
     pool->blocks = block;
 }
 
-static inline void insert_sort(mempool_block_t **container, mempool_block_t *element)
+static inline void insert_sort(struct mempool_block **container, struct mempool_block *element)
 {
-    mempool_block_t *previous = NULL;
-    mempool_block_t *block = *container;
+    struct mempool_block *previous = NULL;
+    struct mempool_block *block = *container;
 
     while (block && (block->address < element->address)) {
         previous = block;
@@ -82,15 +80,15 @@ static inline void insert_sort(mempool_block_t **container, mempool_block_t *ele
     }
 }
 
-mempool_var_t * mempool_var_create(unsigned int size)
+struct mempool_var * mempool_var_create(unsigned int size)
 {
-    mempool_var_t *pool = (mempool_var_t *)malloc(sizeof(mempool_var_t));
+    struct mempool_var *pool = (struct mempool_var *)malloc(sizeof(struct mempool_var));
 
     if (!pool) {
         return NULL;
     }
 
-    memset(pool, 0, sizeof(mempool_var_t));
+    memset(pool, 0, sizeof(struct mempool_var));
 
     const unsigned int aligned_size = ALIGN(size, MEMORY_BLOCK_SIZE);
 
@@ -105,7 +103,7 @@ mempool_var_t * mempool_var_create(unsigned int size)
     pool->chunk_aligned_size = aligned_size;
     pool->chunk_free_size = pool->chunk_aligned_size;
 
-    mempool_block_t *block = mempool_block_allocate(pool,
+    struct mempool_block *block = mempool_block_allocate(pool,
                                                     pool->chunk,
                                                     pool->chunk_free_size,
                                                     NULL);
@@ -121,17 +119,17 @@ mempool_var_t * mempool_var_create(unsigned int size)
     return pool;
 }
 
-void mempool_var_destroy(mempool_var_t *pool)
+void mempool_var_destroy(struct mempool_var *pool)
 {
     // TODO -- optimize there ...
-    mempool_block_t *blocks[] = {pool->blocks, pool->ready_blocks, pool->using_blocks};
+    struct mempool_block *blocks[] = {pool->blocks, pool->ready_blocks, pool->using_blocks};
     const unsigned int blocks_size = sizeof(blocks) / sizeof(*blocks);
 
     for (unsigned int index = 0; index < blocks_size; ++index) {
-        mempool_block_t *block = blocks[index];
+        struct mempool_block *block = blocks[index];
 
         while (block) {
-            mempool_block_t *next = block->next;
+            struct mempool_block *next = block->next;
 
             free(block);
 
@@ -143,7 +141,7 @@ void mempool_var_destroy(mempool_var_t *pool)
     free(pool);
 }
 
-void * mempool_var_allocate(mempool_var_t *pool, unsigned int size)
+void * mempool_var_allocate(struct mempool_var *pool, unsigned int size)
 {
     if (!size) {
         return NULL;
@@ -156,8 +154,8 @@ void * mempool_var_allocate(mempool_var_t *pool, unsigned int size)
         return NULL;
     }
 
-    mempool_block_t *previous = NULL;
-    mempool_block_t *block = pool->ready_blocks;
+    struct mempool_block *previous = NULL;
+    struct mempool_block *block = pool->ready_blocks;
 
     while (block && (block->capacity < aligned_size)) {
         previous = block;
@@ -169,7 +167,7 @@ void * mempool_var_allocate(mempool_var_t *pool, unsigned int size)
         return NULL;
     }
 
-    mempool_block_t *new_block = NULL;
+    struct mempool_block *new_block = NULL;
 
     if (block->capacity > aligned_size) {
         new_block = mempool_block_allocate(pool,
@@ -198,14 +196,14 @@ void * mempool_var_allocate(mempool_var_t *pool, unsigned int size)
     return block->address;
 }
 
-void mempool_var_free(mempool_var_t *pool, void *address)
+void mempool_var_free(struct mempool_var *pool, void *address)
 {
     if (!address) {
         return;
     }
 
-    mempool_block_t *previous = NULL;
-    mempool_block_t *block = pool->using_blocks;
+    struct mempool_block *previous = NULL;
+    struct mempool_block *block = pool->using_blocks;
 
     while (block && (block->address != address)) {
         previous = block;
@@ -231,7 +229,7 @@ void mempool_var_free(mempool_var_t *pool, void *address)
     block = pool->ready_blocks;
 
     while (block && block->next) {
-        mempool_block_t *next = block->next;
+        struct mempool_block *next = block->next;
 
         if ((block->address + block->capacity) == next->address) {
             block->capacity += next->capacity;

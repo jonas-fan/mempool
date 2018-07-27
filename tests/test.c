@@ -86,7 +86,7 @@ static clock_t mempool_test_case1()
 {
     clock_t start = clock();
 
-    mempool_t *pool = mempool_create(TEST_BLOCK_SIZE, 8);
+    struct mempool *pool = mempool_create(TEST_BLOCK_SIZE, 8);
 
     assert(pool);
     assert(mempool_block_size(pool) == TEST_BLOCK_SIZE);
@@ -116,7 +116,7 @@ static clock_t mempool_test_case2()
 
     clock_t start = clock();
 
-    mempool_t *pool = mempool_create(TEST_BLOCK_SIZE, TEST_COUNT);
+    struct mempool *pool = mempool_create(TEST_BLOCK_SIZE, TEST_COUNT);
 
     assert(pool);
     assert(mempool_block_size(pool) == TEST_BLOCK_SIZE);
@@ -150,7 +150,7 @@ static clock_t mempool_test_case3()
 
     clock_t start = clock();
 
-    mempool_t *pool = mempool_create(TEST_BLOCK_SIZE, TEST_COUNT);
+    struct mempool *pool = mempool_create(TEST_BLOCK_SIZE, TEST_COUNT);
 
     assert(pool);
     assert(mempool_block_size(pool) == TEST_BLOCK_SIZE);
@@ -181,7 +181,7 @@ static clock_t mempool_var_test_case1()
 {
     clock_t start = clock();
 
-    mempool_var_t *pool = mempool_var_create(TEST_BLOCK_SIZE * TEST_COUNT);
+    struct mempool_var *pool = mempool_var_create(TEST_BLOCK_SIZE * TEST_COUNT);
 
     assert(pool);
 
@@ -210,7 +210,7 @@ static clock_t mempool_var_test_case2()
 
     clock_t start = clock();
 
-    mempool_var_t *pool = mempool_var_create(TEST_BLOCK_SIZE * TEST_COUNT);
+    struct mempool_var *pool = mempool_var_create(TEST_BLOCK_SIZE * TEST_COUNT);
 
     assert(pool);
 
@@ -243,7 +243,7 @@ static clock_t mempool_var_test_case3()
 
     clock_t start = clock();
 
-    mempool_var_t *pool = mempool_var_create(TEST_BLOCK_SIZE * TEST_COUNT);
+    struct mempool_var *pool = mempool_var_create(TEST_BLOCK_SIZE * TEST_COUNT);
 
     assert(pool);
 

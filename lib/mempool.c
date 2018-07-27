@@ -3,58 +3,56 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct mempool_block_t mempool_block_t;
-
-struct mempool_block_t
+struct mempool_block
 {
     void *address;
-    mempool_block_t *next;
+    struct mempool_block *next;
 };
 
-struct mempool_t
+struct mempool
 {
     unsigned int block_size;
     unsigned int block_count;
 
-    mempool_block_t *blocks;
+    struct mempool_block *blocks;
 
     void **slots;
     unsigned int slots_length;
     unsigned int slots_index;
 };
 
-static inline mempool_block_t * mempool_block_allocate(unsigned int size, mempool_block_t *next)
+static inline struct mempool_block * mempool_block_allocate(unsigned int size, struct mempool_block *next)
 {
-    mempool_block_t *block = (mempool_block_t *)malloc(sizeof(mempool_block_t) + size);
+    struct mempool_block *block = (struct mempool_block *)malloc(sizeof(struct mempool_block) + size);
 
     if (block) {
-        memset(block, 0, sizeof(mempool_block_t));
+        memset(block, 0, sizeof(struct mempool_block));
 
-        block->address = (unsigned char *)block + sizeof(mempool_block_t);
+        block->address = (unsigned char *)block + sizeof(struct mempool_block);
         block->next = next;
     }
 
     return block;
 }
 
-static inline void mempool_block_free(mempool_block_t *block)
+static inline void mempool_block_free(struct mempool_block *block)
 {
     free(block);
 }
 
-mempool_t * mempool_create(unsigned int block_size, unsigned int min_block_count)
+struct mempool * mempool_create(unsigned int block_size, unsigned int min_block_count)
 {
     if (!block_size) {
         return NULL;
     }
 
-    mempool_t *pool = (mempool_t *)malloc(sizeof(mempool_t));
+    struct mempool *pool = (struct mempool *)malloc(sizeof(struct mempool));
 
     if (!pool) {
         return NULL;
     }
 
-    memset(pool, 0, sizeof(mempool_t));
+    memset(pool, 0, sizeof(struct mempool));
 
     pool->block_size = block_size;
 
@@ -72,7 +70,7 @@ mempool_t * mempool_create(unsigned int block_size, unsigned int min_block_count
     }
 
     while (min_block_count--) {
-        mempool_block_t *block = mempool_block_allocate(pool->block_size, pool->blocks);
+        struct mempool_block *block = mempool_block_allocate(pool->block_size, pool->blocks);
 
         if (!block) {
             mempool_destroy(pool);
@@ -86,10 +84,10 @@ mempool_t * mempool_create(unsigned int block_size, unsigned int min_block_count
     return pool;
 }
 
-void mempool_destroy(mempool_t *pool)
+void mempool_destroy(struct mempool *pool)
 {
     while (pool->blocks) {
-        mempool_block_t *block = pool->blocks;
+        struct mempool_block *block = pool->blocks;
 
         pool->blocks = block->next;
 
@@ -100,10 +98,10 @@ void mempool_destroy(mempool_t *pool)
     free(pool);
 }
 
-void * mempool_allocate(mempool_t *pool)
+void * mempool_allocate(struct mempool *pool)
 {
     if (!pool->slots_index) {
-        mempool_block_t *block = mempool_block_allocate(pool->block_size, pool->blocks);
+        struct mempool_block *block = mempool_block_allocate(pool->block_size, pool->blocks);
 
         if (!block) {
             return NULL;
@@ -144,14 +142,14 @@ void * mempool_allocate(mempool_t *pool)
     return pool->slots[--pool->slots_index];
 }
 
-void mempool_free(mempool_t *pool, void *address)
+void mempool_free(struct mempool *pool, void *address)
 {
     if (address && (pool->slots_index < pool->slots_length)) {
         pool->slots[pool->slots_index++] = address;
     }
 }
 
-unsigned int mempool_block_size(mempool_t *pool)
+unsigned int mempool_block_size(struct mempool *pool)
 {
     return pool->block_size;
 }

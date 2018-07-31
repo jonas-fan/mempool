@@ -1,4 +1,4 @@
-#include "../lib/mempool.h"
+#include "../src/mempool.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -162,7 +162,7 @@ static clock_t mempool_test_case3()
     return diff;
 }
 
-int main(/*int argc, char *argv[]*/)
+int main()
 {
     typedef clock_t (*case_func_t)(void);
 

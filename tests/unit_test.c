@@ -1,4 +1,4 @@
-#include "../lib/mempool.h"
+#include "../src/mempool.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -7,7 +7,7 @@
 
 static unsigned int count = 0;
 
-int main(int argc, char *argv[])
+int main()
 {
     struct mempool pool;
     void *mem1;

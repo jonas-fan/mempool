@@ -19,7 +19,7 @@ $ make -j4
 Note that the statistics will depend on the machine.
 
 ```bash
-$ ./tests/stress
+$ ./tests/stress_test
 ===== malloc/free =====
 [Case 1]: 82.18ms
 [Case 2]: 395.36ms

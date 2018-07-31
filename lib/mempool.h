@@ -5,16 +5,68 @@
 extern "C" {
 #endif
 
-struct mempool * mempool_create(unsigned int block_size, unsigned int min_block_count);
-void mempool_destroy(struct mempool *pool);
-void * mempool_allocate(struct mempool *pool);
-void mempool_free(struct mempool *pool, void *address);
-unsigned int mempool_block_size(struct mempool *pool);
+#include <stdlib.h>
+#include <string.h>
 
-struct mempool_var * mempool_var_create(unsigned int size);
-void mempool_var_destroy(struct mempool_var *pool);
-void * mempool_var_allocate(struct mempool_var *pool, unsigned int size);
-void mempool_var_free(struct mempool_var *pool, void *address);
+struct mempool
+{
+    char *memory;
+    void **blocks;
+    unsigned int count;
+};
+
+/* initialize the memory pool */
+static inline int mempool_init(struct mempool *pool, unsigned int size,
+    unsigned int count)
+{
+    if (!size || !count) {
+        return 0;
+    }
+
+    memset(pool, 0, sizeof(struct mempool));
+    pool->memory = (char *)malloc(size * count);
+
+    if (!pool->memory) {
+        return 0;
+    }
+
+    pool->blocks = (void **)malloc(sizeof(void *) * count);
+
+    if (!pool->blocks) {
+        free(pool->memory);
+        return 0;
+    }
+
+    while (count--) {
+        pool->blocks[pool->count] = pool->memory + pool->count * size;
+        pool->count++;
+    }
+
+    return 1;
+}
+
+/* finalize the memory pool */
+static inline void mempool_term(struct mempool *pool)
+{
+    free(pool->blocks);
+    free(pool->memory);
+
+    memset(pool, 0, sizeof(struct mempool));
+}
+
+/* return a memory block from the pool */
+static inline void * mempool_alloc(struct mempool *pool)
+{
+    return pool->count ? pool->blocks[--pool->count] : NULL;
+}
+
+/* release a memory block */
+static inline void mempool_free(struct mempool *pool, void *address)
+{
+    if (address) {
+        pool->blocks[pool->count++] = address;
+    }
+}
 
 #ifdef __cplusplus
 }

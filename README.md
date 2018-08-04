@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/jonas-fan/libmempool.svg?branch=master)](https://travis-ci.org/jonas-fan/libmempool)
 
-Single header, fixed-size memory pool implementation in C.
+Header-only memory pool in C.
 
 ## Building
 

@@ -20,15 +20,17 @@ Note that the statistics will depend on the machine.
 
 ```bash
 $ ./tests/stress_test
-===== malloc/free =====
-[Case 1]: 82.18ms
-[Case 2]: 395.36ms
-[Case 3]: 953.91ms
+# Test 001 
+os malloc/free ... elapsed 85.22ms
+mempool alloc/free ... elapsed 1.92ms
 
-===== Fixed-size memroy pool =====
-[Case 1]: 1.71ms
-[Case 2]: 3.52ms
-[Case 3]: 3.54ms
+# Test 002 
+os malloc/free ... elapsed 87.92ms
+mempool alloc/free ... elapsed 4.03ms
+
+# Test 003 
+os malloc/free ... elapsed 82.58ms
+mempool alloc/free ... elapsed 4.11ms
 ```
 
 ## License

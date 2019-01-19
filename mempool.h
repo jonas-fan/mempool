@@ -24,7 +24,7 @@ struct mempool
  * @param count the count of memory blocks
  * @return 1 on success, 0 otherwise
  */
-static inline int mempool_init(struct mempool *pool, unsigned int size,
+static int mempool_init(struct mempool *pool, unsigned int size,
     unsigned int count)
 {
     memset(pool, 0, sizeof(struct mempool));
@@ -44,10 +44,12 @@ static inline int mempool_init(struct mempool *pool, unsigned int size,
 
     pool->memory = memory;
     pool->blocks = blocks;
+    memory -= size;
 
     while (count--) {
-        pool->blocks[pool->count] = pool->memory + pool->count * size;
+        pool->blocks[pool->count] = memory + size;
         pool->count++;
+        memory += size;
     }
 
     return 1;
@@ -58,7 +60,7 @@ static inline int mempool_init(struct mempool *pool, unsigned int size,
  *
  * @param pool the pool
  */
-static inline void mempool_term(struct mempool *pool)
+static void mempool_term(struct mempool *pool)
 {
     free(pool->blocks);
     free(pool->memory);

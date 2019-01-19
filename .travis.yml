@@ -11,8 +11,8 @@ script:
     - make -j4
 
 after_script:
-    - ./tests/unit_test
-    - ./tests/stress_test
+    - ./tests/mempool_test
+    - ./tests/mempool_stress_test
 
 notifications:
     email:

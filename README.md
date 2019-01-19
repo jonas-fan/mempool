@@ -4,6 +4,10 @@
 
 Simple, header-only memory pool in C.
 
+## Build
+
+Since there is only a header, you can choose the way you like to use.
+
 ## Testing
 
 Note that the statistics will depend on the machine.
@@ -13,18 +17,16 @@ $ mkdir build/
 $ cd build/
 $ cmake ..
 $ make -j4
-$ ./tests/stress_test
+$ ./tests/mempool_stress_test
 # Test 001
-os malloc/free ... elapsed 85.22ms
-mempool alloc/free ... elapsed 1.92ms
-
+os malloc/free ... elapsed 429.94ms
+mempool alloc/free ... elapsed 9.62ms
 # Test 002
-os malloc/free ... elapsed 87.92ms
-mempool alloc/free ... elapsed 4.03ms
-
+os malloc/free ... elapsed 423.46ms
+mempool alloc/free ... elapsed 20.32ms
 # Test 003
-os malloc/free ... elapsed 82.58ms
-mempool alloc/free ... elapsed 4.11ms
+os malloc/free ... elapsed 409.97ms
+mempool alloc/free ... elapsed 20.03ms
 ```
 
 ## License

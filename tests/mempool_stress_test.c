@@ -5,8 +5,8 @@
 #include <time.h>
 #include <assert.h>
 
-#define TEST_ROUND 500
-#define TEST_COUNT (4 * 1000)
+#define TEST_ROUND 10000
+#define TEST_COUNT 1000
 #define TEST_BLOCK_SIZE 256
 
 #define CLOCK_TO_SEC(clock) ((double)(clock) / CLOCKS_PER_SEC)
@@ -16,12 +16,12 @@
 static unsigned int count = 0;
 static clock_t start_clock;
 
-static void profiler_start()
+static inline void profiler_start()
 {
     start_clock = clock();
 }
 
-static void profiler_stop()
+static inline void profiler_stop()
 {
     printf("elapsed %.2fms\n", CLOCK_TO_MSEC(clock() - start_clock));
 }
@@ -39,8 +39,7 @@ static void profiler_stop()
 
 #define test2(ALLOC_CODE, FREE_CODE) \
     do { \
-        void **address = (void **)malloc(sizeof(void *) * TEST_COUNT); \
-        assert(address); \
+        void *address[TEST_COUNT]; \
         for (unsigned int round = 0; round < TEST_ROUND; ++round) { \
             for (unsigned int count = 0; count < TEST_COUNT; ++count) { \
                 address[count] = ALLOC_CODE; \
@@ -51,13 +50,11 @@ static void profiler_stop()
                 FREE_CODE; \
             } \
         } \
-        free(address); \
     } while (0)
 
 #define test3(ALLOC_CODE, FREE_CODE) \
     do { \
-        void **address = (void **)malloc(sizeof(void *) * TEST_COUNT); \
-        assert(address); \
+        void *address[TEST_COUNT]; \
         for (unsigned int round = 0; round < TEST_ROUND; ++round) { \
             for (unsigned int count = 0; count < TEST_COUNT; ++count) { \
                 address[count] = ALLOC_CODE; \
@@ -68,7 +65,6 @@ static void profiler_stop()
                 FREE_CODE; \
             } \
         } \
-        free(address); \
     } while (0)
 
 static void os_test1()
@@ -124,7 +120,6 @@ int main()
     profiler_start();
     mempool_test1();
     profiler_stop();
-    printf("\n");
 
     TEST("");
     printf("os malloc/free ... ");
@@ -135,7 +130,6 @@ int main()
     profiler_start();
     mempool_test2();
     profiler_stop();
-    printf("\n");
 
     TEST("");
     printf("os malloc/free ... ");
@@ -146,7 +140,6 @@ int main()
     profiler_start();
     mempool_test3();
     profiler_stop();
-    printf("\n");
 
     return 0;
 }

@@ -1,5 +1,5 @@
-#ifndef __LIBMEMPOOL_H_
-#define __LIBMEMPOOL_H_
+#ifndef __MEMPOOL_H_
+#define __MEMPOOL_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -94,4 +94,4 @@ static inline void mempool_free(struct mempool *pool, void *block)
 }
 #endif
 
-#endif /* __LIBMEMPOOL_H_ */
+#endif /* __MEMPOOL_H_ */

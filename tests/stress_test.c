@@ -1,4 +1,4 @@
-#include "../src/mempool.h"
+#include "../mempool.h"
 
 #include <stdio.h>
 #include <stdlib.h>

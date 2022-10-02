@@ -1,7 +1,5 @@
 # mempool
 
-[![Build Status](https://travis-ci.org/jonas-fan/mempool.svg?branch=master)](https://travis-ci.org/jonas-fan/mempool)
-
 Simple, header-only memory pool in C.
 
 ## Build
